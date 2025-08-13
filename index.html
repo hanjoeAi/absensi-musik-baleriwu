@@ -1,1 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Hadir Ekstrakurikuler Musik | SMA KATOLIK BALERIWU</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Daftar Hadir Kegiatan Ekstrakurikuler Musik</h1>
+            <h2>SMA KATOLIK BALERIWU</h2>
+        </header>
+        
+        <main>
+            <div class="controls">
+                <div class="input-group">
+                    <label for="hari-tanggal">Hari & Tanggal:</label>
+                    <input type="datetime-local" id="hari-tanggal" name="hari-tanggal">
+                </div>
+                <div class="input-group">
+                    <label for="jenis-kegiatan">Jenis Kegiatan:</label>
+                    <select id="jenis-kegiatan">
+                        <option value="Semua">Semua</option>
+                    </select>
+                    <button id="btn-tambah-kegiatan" class="btn-small">+</button>
+                </div>
+                <div id="grup-band-container" class="input-group" style="display: none;">
+                    <label for="pilih-grup-band">Pilih Grup Band:</label>
+                    <select id="pilih-grup-band">
+                        <option value="">-- Pilih Band --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="actions">
+                 <button id="btn-tambah-siswa">➕ Tambah Siswa</button>
+                 <button id="btn-tambah-grup">🎸 Tambah Grup Band</button>
+            </div>
+
+            <div id="attendance-list">
+                <h3>Pelatih & Pendamping</h3>
+                <div id="coach-list"></div>
+                
+                <hr>
+
+                <h3>Siswa</h3>
+                <div id="student-list"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal-siswa" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3 id="modal-siswa-title">Tambah Siswa Baru</h3>
+            <input type="hidden" id="edit-siswa-id">
+            <input type="text" id="input-nama-siswa" placeholder="Nama Lengkap Siswa">
+            <select id="input-minat-siswa">
+                <option value="">-- Pilih Minat --</option>
+                <option value="Vokal">Vokal</option>
+                <option value="Gitar">Gitar</option>
+                <option value="Keyboard">Keyboard</option>
+                <option value="Bass">Bass</option>
+                <option value="Drum">Drum</option>
+            </select>
+            <button id="btn-simpan-siswa">Simpan</button>
+        </div>
+    </div>
+    
+    <div id="modal-keterangan" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>Keterangan Tidak Hadir</h3>
+            <p id="nama-tidak-hadir"></p>
+            <select id="pilihan-keterangan">
+                <option value="Sakit">Sakit (S)</option>
+                <option value="Ijin">Ijin (I)</option>
+                <option value="Alpa">Alpa (A)</option>
+            </select>
+            <textarea id="input-keterangan" placeholder="Tulis keterangan lebih lanjut..."></textarea>
+            <button id="btn-simpan-keterangan">Simpan Absen</button>
+        </div>
+    </div>
+
+    <div id="modal-grup-band" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>Buat Grup Band Baru</h3>
+            <input type="text" id="input-nama-band" placeholder="Nama Grup Band">
+            <button id="btn-simpan-grup-band">Buat Grup</button>
+        </div>
+    </div>
+
+    <div id="modal-anggota-band" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3 id="modal-anggota-title">Tambah Anggota</h3>
+            <input type="hidden" id="band-id-for-member">
+            <select id="pilih-siswa-untuk-band">
+                 </select>
+            <button id="btn-simpan-anggota-band">Tambahkan</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+              </html>
 
