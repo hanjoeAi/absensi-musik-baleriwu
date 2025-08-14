@@ -70,3 +70,26 @@ button:hover { background-color: #0056b3; }
 }
 .close-button:hover, .close-button:focus { color: black; }
 
+/* CSS untuk tombol aksi siswa */
+.btn-edit, .btn-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 1.2em; /* Perbesar sedikit ikon */
+}
+
+.btn-edit:hover {
+    color: #007bff; /* Biru saat hover */
+}
+
+.btn-delete:hover {
+    color: #dc3545; /* Merah saat hover */
+}
+
+/* CSS untuk detail tambahan siswa */
+.student-details {
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-left: 10px;
+}
