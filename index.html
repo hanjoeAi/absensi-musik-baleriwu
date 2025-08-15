@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Hadir Ekstrakurikuler Musik | SMA KATOLIK BALERIWU</title>
     <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Hadir Ekstrakurikuler Musik | SMA KATOLIK BALERIWU</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -38,19 +45,36 @@
             <div class="actions">
                  <button id="btn-tambah-siswa">➕ Tambah Siswa</button>
                  <button id="btn-tambah-grup">🎸 Tambah Grup Band</button>
-            </div>
 
-            <div id="attendance-list">
-                <h3>Pelatih & Pendamping</h3>
-                <div id="coach-list"></div>
-                
-                <hr>
-
-                <h3>Siswa</h3>
-                <div id="student-list"></div>
+                <button id="btn-save-pdf" style="background-color: #17a2b8;">📄 Simpan ke PDF</button>
             </div>
-        </main>
+           
+    <div id="printable-area">
+
+    <div id="attendance-list">
+        <h3>Pelatih & Pendamping</h3>
+        <div id="coach-list"></div>
+        
+        <hr>
+
+        <h3>Siswa</h3>
+        <div id="student-list"></div>
     </div>
+
+    <div id="footer-pdf">
+        <div class="signature-section">
+            <p>Mengetahui Kepala Sekolah,</p>
+            <br><br><br>
+            <p><strong><u>Paulus Tenga, S.Pd.</u></strong><br>(Kepala Sekolah)</p>
+        </div>
+        <div class="signature-section">
+            <p>Pendamping/Pelatih,</p>
+            <br><br><br>
+            <p><strong>(....................................)</strong></p>
+        </div>
+    </div>
+
+</div>
 
     <div id="modal-siswa" class="modal">
         <div class="modal-content">
