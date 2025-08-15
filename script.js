@@ -79,7 +79,38 @@ document.addEventListener("DOMContentLoaded", () => {
             hideLoading();
         }
     }
+    // ... (di bawah blok fungsi loadInitialData() ) ...
 
+
+// ==============================================================
+// PASTIKAN FUNGSI INI ADA DAN SUDAH BENAR
+// ==============================================================
+// Fungsi mengirim data ke Google Apps Script
+async function postData(data) {
+    showLoading();
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Biarkan no-cors
+            body: JSON.stringify({ // Pastikan formatnya seperti ini
+              ...data
+            })
+        });
+
+        // Karena 'no-cors', kita anggap sukses dan muat ulang data
+        console.log("Operasi dikirim. Memuat ulang data...");
+        await loadInitialData(); // Ini akan memuat ulang semua data dan me-render ulang daftar
+
+    } catch (error) {
+        console.error('Error posting data:', error);
+        alert('Terjadi kesalahan saat mengirim data.');
+        hideLoading();
+    }
+}
+// ==============================================================
+
+
+// ... (kode untuk event listeners dimulai di sini) ...
     // Fungsi untuk merender daftar Pelatih & Pendamping
     function renderCoachList() {
         coachListEl.innerHTML = '';
