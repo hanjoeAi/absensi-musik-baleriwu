@@ -96,49 +96,64 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Fungsi untuk merender daftar siswa berdasarkan filter
-    function renderStudentList() {
-        studentListEl.innerHTML = '<p>Memuat siswa...</p>';
-        const filterKegiatan = jenisKegiatanEl.value;
-        const filterBandId = pilihGrupBandEl.value;
-        
-        let siswaTampil = [];
+function renderStudentList() {
+    studentListEl.innerHTML = '<p>Memuat siswa...</p>';
+    const filterKegiatan = jenisKegiatanEl.value;
+    const filterBandId = pilihGrupBandEl.value;
+    
+    let siswaTampil = [];
 
-        if (filterKegiatan === 'Semua') {
-            siswaTampil = semuaSiswa;
-        } else if (filterKegiatan === 'Band') {
-            if (filterBandId) {
-                const anggotaIds = semuaAnggotaBand
-                    .filter(anggota => anggota.bandId === filterBandId)
-                    .map(anggota => anggota.siswaId);
-                siswaTampil = semuaSiswa.filter(siswa => anggotaIds.includes(siswa.id));
-            } else {
-                 siswaTampil = []; // Jangan tampilkan siapa-siapa jika belum pilih band
-            }
+    // Logika filter biarkan sama
+    if (filterKegiatan === 'Semua') {
+        siswaTampil = semuaSiswa;
+    } else if (filterKegiatan === 'Band') {
+        if (filterBandId) {
+            const anggotaIds = semuaAnggotaBand
+                .filter(anggota => anggota.bandId === filterBandId)
+                .map(anggota => anggota.siswaId);
+            siswaTampil = semuaSiswa.filter(siswa => anggotaIds.includes(siswa.id));
         } else {
-            siswaTampil = semuaSiswa.filter(siswa => siswa.minat === filterKegiatan);
+            siswaTampil = [];
         }
-
-        studentListEl.innerHTML = '';
-        if (siswaTampil.length === 0) {
-            studentListEl.innerHTML = '<p>Tidak ada siswa untuk kegiatan ini.</p>';
-            return;
-        }
-
-        siswaTampil.sort((a, b) => a.nama.localeCompare(b.nama)).forEach(siswa => {
-            const itemHTML = `
-                <div class="list-item">
-                    <span class="item-name">${siswa.nama} <small>(${siswa.minat || 'Belum ada minat'})</small></span>
-                    <div class="item-actions">
-                        <button class="btn-edit" data-id="${siswa.id}">✏️</button>
-                        <button class="btn-delete" data-id="${siswa.id}">🗑️</button>
-                        <button class="btn-hadir" data-nama="${siswa.nama}" data-peran="Siswa">HADIR</button>
-                        <button class="btn-tidak-hadir" data-nama="${siswa.nama}" data-peran="Siswa">TIDAK HADIR</button>
-                    </div>
-                </div>
-            `;
-            studentListEl.insertAdjacentHTML('beforeend', itemHTML);
-        });
+    } else {
+        siswaTampil = semuaSiswa.filter(siswa => siswa.minat === filterKegiatan);
     }
+
+    studentListEl.innerHTML = '';
+    if (siswaTampil.length === 0) {
+        studentListEl.innerHTML = '<p>Tidak ada siswa untuk kegiatan ini.</p>';
+        return;
+    }
+
+    // Loop dan buat HTML untuk setiap siswa
+    siswaTampil.sort((a, b) => a.nama.localeCompare(b.nama)).forEach(siswa => {
+        // Cari tahu apakah siswa ini ada di grup band
+        const bandInfo = semuaAnggotaBand.find(anggota => anggota.siswaId === siswa.id);
+        let namaBand = '';
+        if (bandInfo) {
+            const band = semuaGrupBand.find(b => b.id === bandInfo.bandId);
+            if (band) namaBand = band.nama;
+        }
+
+        const itemHTML = `
+            <div class="list-item" data-id-siswa="${siswa.id}">
+                <div>
+                    <span class="item-name">${siswa.nama}</span>
+                    <span class="student-details">
+                        Minat: ${siswa.minat || 'N/A'} | Band: ${namaBand || 'N/A'}
+                    </span>
+                </div>
+                <div class="item-actions">
+                    <button class="btn-edit" title="Edit Siswa">✏️</button>
+                    <button class="btn-delete" title="Hapus Siswa">🗑️</button>
+                    <button class="btn-hadir" data-nama="${siswa.nama}" data-peran="Siswa">HADIR</button>
+                    <button class="btn-tidak-hadir" data-nama="${siswa.nama}" data-peran="Siswa">TIDAK HADIR</button>
+                </div>
+            </div>
+        `;
+        studentListEl.insertAdjacentHTML('beforeend', itemHTML);
+    });
+}
 
     // Mengisi dropdown kegiatan
     function populateKegiatanDropdown() {
@@ -164,26 +179,47 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Fungsi mengirim data ke Google Apps Script
-    async function postData(data) {
-        showLoading();
-        try {
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors', // Penting untuk Apps Script Web App
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-             // Karena mode 'no-cors', kita tidak bisa membaca response. Jadi kita anggap sukses.
-            // Untuk mendapatkan feedback, perlu trik redirect di Apps Script, tapi ini cukup untuk sekarang.
-            alert("Operasi sedang diproses. Silakan cek spreadsheet untuk konfirmasi.");
-            await loadInitialData(); // Muat ulang data
-        } catch (error) {
-            console.error('Error posting data:', error);
-            alert('Terjadi kesalahan saat mengirim data.');
-            hideLoading();
-        }
+    // Simpan siswa (tambah atau edit)
+btnSimpanSiswa.addEventListener("click", async () => {
+    const id = editSiswaId.value;
+    const nama = inputNamaSiswa.value.trim();
+    const minat = inputMinatSiswa.value;
+
+    if (!nama || !minat) {
+        alert("Nama dan Minat harus diisi!");
+        return;
     }
+
+    const action = id ? "editStudent" : "addStudent";
+    const payload = { action, nama, minat, id };
+
+    closeAllModals(); // Tutup modal dulu
+    await postData(payload); // Kirim data
+});
+
+// Simpan keterangan tidak hadir
+btnSimpanKeterangan.addEventListener('click', async () => {
+    const tanggal = hariTanggalEl.value;
+    if (!tanggal) { alert("Harap isi Hari & Tanggal terlebih dahulu!"); return; }
+    
+    const statusSingkat = pilihanKeteranganEl.value;
+    const keteranganLengkap = inputKeteranganEl.value.trim();
+    
+    const payload = {
+        action: "saveAttendance", tanggal, kegiatan: jenisKegiatanEl.value,
+        nama: dataAbsenSementara.nama, peran: dataAbsenSementara.peran,
+        status: statusSingkat, keterangan: keteranganLengkap
+    };
+
+    // Warnai item setelah absen
+    if(dataAbsenSementara.listItem) {
+      dataAbsenSementara.listItem.style.backgroundColor = '#f8d7da';
+    }
+
+    closeAllModals();
+    await postData(payload);
+    inputKeteranganEl.value = '';
+});
 
 
     // ########## EVENT HANDLERS ##########
@@ -225,72 +261,97 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     
     // Aksi di daftar absensi (hadir, tidak hadir, edit, hapus)
-    document.getElementById('attendance-list').addEventListener('click', async (e) => {
-        const target = e.target;
-        const nama = target.dataset.nama;
-        const peran = target.dataset.peran;
-        const idSiswa = target.dataset.id;
+document.getElementById('attendance-list').addEventListener('click', async (e) => {
+    // Cari elemen .list-item terdekat dari tombol yang diklik
+    const listItem = e.target.closest('.list-item');
+    if (!listItem) return; // Jika yang diklik bukan di dalam list-item, abaikan
 
-        if (target.classList.contains('btn-hadir')) {
-            const tanggal = hariTanggalEl.value;
-            if (!tanggal) {
-                alert("Harap isi Hari & Tanggal terlebih dahulu!");
-                return;
-            }
-            const payload = {
-                action: "saveAttendance",
-                tanggal: tanggal,
-                kegiatan: jenisKegiatanEl.value === 'Band' ? `Band: ${pilihGrupBandEl.options[pilihGrupBandEl.selectedIndex].text}` : jenisKegiatanEl.value,
-                nama: nama,
-                peran: peran,
-                status: "Hadir",
-                keterangan: ""
-            };
-            await postData(payload);
-        } else if (target.classList.contains('btn-tidak-hadir')) {
-            dataAbsenSementara = { nama, peran };
-            namaTidakHadirEl.textContent = `Nama: ${nama}`;
-            modalKeterangan.style.display = 'block';
-        } else if (target.classList.contains('btn-edit')) {
-            const siswa = semuaSiswa.find(s => s.id === idSiswa);
-            if(siswa) {
-                modalSiswaTitle.textContent = "Edit Data Siswa";
-                editSiswaId.value = siswa.id;
-                inputNamaSiswa.value = siswa.nama;
-                inputMinatSiswa.value = siswa.minat;
-                modalSiswa.style.display = "block";
-            }
-        } else if (target.classList.contains('btn-delete')) {
-            if (confirm(`Apakah Anda yakin ingin menghapus siswa "${nama}"?`)) {
-                await postData({ action: 'deleteStudent', id: idSiswa });
-            }
+    const idSiswa = listItem.dataset.idSiswa;
+    const siswa = semuaSiswa.find(s => s.id === idSiswa);
+
+    // Jika tombol EDIT yang diklik
+    if (e.target.classList.contains('btn-edit')) {
+        if (siswa) {
+            modalSiswaTitle.textContent = "Edit Data Siswa";
+            editSiswaId.value = siswa.id;
+            inputNamaSiswa.value = siswa.nama;
+            inputMinatSiswa.value = siswa.minat;
+            modalSiswa.style.display = "block";
         }
-    });
-
-    // Simpan keterangan tidak hadir
-    btnSimpanKeterangan.addEventListener('click', async () => {
+    } 
+    // Jika tombol HAPUS yang diklik
+    else if (e.target.classList.contains('btn-delete')) {
+        if (siswa && confirm(`Apakah Anda yakin ingin menghapus siswa "${siswa.nama}"?`)) {
+            await postData({ action: 'deleteStudent', id: siswa.id });
+        }
+    } 
+    // Jika tombol HADIR yang diklik
+    else if (e.target.classList.contains('btn-hadir')) {
+        const nama = e.target.dataset.nama;
+        const peran = e.target.dataset.peran;
         const tanggal = hariTanggalEl.value;
         if (!tanggal) {
             alert("Harap isi Hari & Tanggal terlebih dahulu!");
             return;
         }
-        const statusSingkat = pilihanKeteranganEl.value;
-        const keteranganLengkap = inputKeteranganEl.value.trim();
-        
         const payload = {
-            action: "saveAttendance",
-            tanggal: tanggal,
-            kegiatan: jenisKegiatanEl.value === 'Band' ? `Band: ${pilihGrupBandEl.options[pilihGrupBandEl.selectedIndex].text}` : jenisKegiatanEl.value,
-            nama: dataAbsenSementara.nama,
-            peran: dataAbsenSementara.peran,
-            status: statusSingkat,
-            keterangan: keteranganLengkap
+            action: "saveAttendance", tanggal, kegiatan: jenisKegiatanEl.value, nama, peran, status: "Hadir", keterangan: ""
         };
-
         await postData(payload);
-        closeAllModals();
-        inputKeteranganEl.value = '';
-    });
+        // Tambahkan efek visual setelah absen
+        listItem.style.backgroundColor = '#d4edda';
+    } 
+    // Jika tombol TIDAK HADIR yang diklik
+    else if (e.target.classList.contains('btn-tidak-hadir')) {
+        const nama = e.target.dataset.nama;
+        const peran = e.target.dataset.peran;
+        dataAbsenSementara = { nama, peran, listItem }; // Simpan listItem untuk diwarnai nanti
+        namaTidakHadirEl.textContent = `Nama: ${nama}`;
+        modalKeterangan.style.display = 'block';
+    }
+});
+
+    // Simpan siswa (tambah atau edit)
+btnSimpanSiswa.addEventListener("click", async () => {
+    const id = editSiswaId.value;
+    const nama = inputNamaSiswa.value.trim();
+    const minat = inputMinatSiswa.value;
+
+    if (!nama || !minat) {
+        alert("Nama dan Minat harus diisi!");
+        return;
+    }
+
+    const action = id ? "editStudent" : "addStudent";
+    const payload = { action, nama, minat, id };
+
+    closeAllModals(); // Tutup modal dulu
+    await postData(payload); // Kirim data
+});
+
+// Simpan keterangan tidak hadir
+btnSimpanKeterangan.addEventListener('click', async () => {
+    const tanggal = hariTanggalEl.value;
+    if (!tanggal) { alert("Harap isi Hari & Tanggal terlebih dahulu!"); return; }
+    
+    const statusSingkat = pilihanKeteranganEl.value;
+    const keteranganLengkap = inputKeteranganEl.value.trim();
+    
+    const payload = {
+        action: "saveAttendance", tanggal, kegiatan: jenisKegiatanEl.value,
+        nama: dataAbsenSementara.nama, peran: dataAbsenSementara.peran,
+        status: statusSingkat, keterangan: keteranganLengkap
+    };
+
+    // Warnai item setelah absen
+    if(dataAbsenSementara.listItem) {
+      dataAbsenSementara.listItem.style.backgroundColor = '#f8d7da';
+    }
+
+    closeAllModals();
+    await postData(payload);
+    inputKeteranganEl.value = '';
+});
     
      // Buka modal tambah grup band
     btnTambahGrup.addEventListener("click", () => {
