@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const grupBandContainer = document.getElementById("grup-band-container");
     const coachListEl = document.getElementById("coach-list");
     const studentListEl = document.getElementById("student-list");
+    // ... elemen-elemen lain
+    const btnSavePdf = document.getElementById("btn-save-pdf");
 
     // Tombol Aksi
     const btnTambahSiswa = document.getElementById("btn-tambah-siswa");
@@ -398,5 +400,38 @@ btnSimpanKeterangan.addEventListener('click', async () => {
     // ########## INISIALISASI ##########
     hariTanggalEl.valueAsDateTime = new Date(); // Set tanggal & waktu sekarang
     loadInitialData();
+
+    // Event listener untuk tombol simpan PDF
+btnSavePdf.addEventListener('click', () => {
+    // Ambil elemen yang ingin kita cetak
+    const printableArea = document.getElementById('printable-area');
+
+    // Ambil tanggal hari ini untuk nama file
+    const tanggal = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+    const fileName = `Absensi-Musik-${tanggal}.pdf`;
+
+    // Gunakan html2canvas untuk mengambil 'screenshot' dari area cetak
+    html2canvas(printableArea, { scale: 2 }).then(canvas => { // scale: 2 untuk resolusi lebih baik
+        const imgData = canvas.toDataURL('image/png');
+
+        // Inisialisasi jsPDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        // Hitung dimensi gambar agar pas di halaman A4
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+        // Tambahkan gambar ke PDF
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+        // Simpan PDF
+        pdf.save(fileName);
+    });
+});
 });
           
