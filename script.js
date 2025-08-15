@@ -46,25 +46,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ########## FUNGSI UTAMA ##########
     async function loadInitialData() {
-        showLoading();
-        try {
-            const response = await fetch(`${SCRIPT_URL}?action=getInitialData`);
-            const data = await response.json();
-            semuaSiswa = data.siswa.filter(s => s.status === 'Aktif');
-            semuaKegiatan = data.kegiatan;
-            semuaGrupBand = data.grupBand;
-            semuaAnggotaBand = data.anggotaBand;
-            renderCoachList();
-            renderStudentList();
-            populateKegiatanDropdown();
-            populateGrupBandDropdown();
-            hideLoading();
-        } catch (error) {
-            console.error("Error loading initial data:", error);
-            alert("Gagal memuat data. Cek koneksi dan URL Apps Script.");
-            hideLoading();
-        }
+    console.log("Memulai proses loadInitialData..."); // MATA-MATA 1
+    showLoading();
+    try {
+        const urlToFetch = `${SCRIPT_URL}?action=getInitialData`;
+        console.log("URL yang sedang direquest:", urlToFetch); // MATA-MATA 2
+
+        const response = await fetch(urlToFetch);
+
+        console.log("Response header dari server:", response.status, response.statusText); // MATA-MATA 3
+        
+        const data = await response.json();
+        console.log("Data mentah (raw) yang diterima dari server:", data); // MATA-MATA 4
+        
+        semuaSiswa = data.siswa.filter(s => s.status === 'Aktif');
+        console.log("Data siswa yang sudah difilter dan akan ditampilkan:", semuaSiswa); // MATA-MATA 5
+
+        semuaKegiatan = data.kegiatan;
+        semuaGrupBand = data.grupBand;
+        semuaAnggotaBand = data.anggotaBand;
+        
+        renderCoachList();
+        renderStudentList();
+        populateKegiatanDropdown();
+        populateGrupBandDropdown();
+        hideLoading();
+        console.log("Proses loadInitialData selesai dengan sukses."); // MATA-MATA 6
+
+    } catch (error) {
+        console.error("KRITIS: Terjadi error di dalam blok 'catch' saat loadInitialData:", error); // MATA-MATA 7
+        alert("Gagal memuat data. Cek Developer Console (F12) untuk detail error.");
+        hideLoading();
     }
+}
 
     async function postData(data) {
         showLoading();
