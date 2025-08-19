@@ -80,24 +80,23 @@ async function loadInitialData() {
         hideLoading();
     }
 }
-    async function postData(data) {
-        showLoading();
-        try {
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({
-                    ...data
-                })
-            });
-            console.log("Operasi dikirim. Memuat ulang data...");
-            await loadInitialData();
-        } catch (error) {
-            console.error('Error posting data:', error);
-            alert('Terjadi kesalahan saat mengirim data.');
-            hideLoading();
-        }
+async function postData(data) {
+    showLoading();
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({ ...data })
+        });
+        console.log("Operasi dikirim.");
+        alert("Data berhasil dikirim! Silakan periksa sheet atau klik Refresh Data."); // Pesan baru
+        hideLoading();
+    } catch (error) {
+        console.error('Error posting data:', error);
+        alert('Terjadi kesalahan saat mengirim data.');
+        hideLoading();
     }
+}
 
     function renderCoachList() {
         coachListEl.innerHTML = '';
@@ -342,6 +341,11 @@ async function loadInitialData() {
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             pdf.save(fileName);
         });
+        // Event listener untuk tombol Refresh Data
+        document.getElementById('btn-refresh').addEventListener('click', () => {
+    console.log("Tombol Refresh ditekan, memuat ulang data...");
+    loadInitialData();
+});
     });
 
     // ########## INISIALISASI ##########
