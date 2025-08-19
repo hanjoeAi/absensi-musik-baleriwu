@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     // ########## PENGATURAN ##########
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3_QhSMSe9dCcbvVCdSQ0-uQIY1q44ab6FUkMPc5C_gO1jWhIWyz3jiABSjThkKKh5TQ/exec"; // GANTI DENGAN URL WEB APP ANDA
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzVQVlw63_jC-9FvKJMkphiAw7ONS_vpwdeSDHaoR5PDA3DwANwLbzxdcBobriPm45ifw/exec"; // GANTI DENGAN URL WEB APP ANDA
     const PELATIH_PENDAMPING = [
         { nama: "Hendrikus Y. Mori", peran: "Pelatih" },
         { nama: "Benediktus Budi", peran: "Pendamping 1" },
